@@ -1,0 +1,1512 @@
+/* ==========================================================
+   0. COLORS + BASICS (affects the whole screen)
+   Every color on the site comes from here.
+   Change the colors in :root only.
+   ========================================================== */
+:root {
+  --main-bg: url("bg1.jpg");
+  --bg: #fdf6fb;        /* page background */
+  --panel: #f4eafc;     /* sidebar, info panel, player bar */
+  --card: #ffffff;      /* cards and white boxes */
+  --text: #4a4063;      /* main text */
+  --muted: #7a7092;     /* gray-purple small text */
+  --accent: #b794f6;    /* purple accent */
+  --accent-dark: #9b72e8;
+  --line: #e6d9f5;      /* thin borders */
+  --np-text: #4a4063;   /* full-screen player text */
+  --np-muted: #6b5f86;
+}
+
+/* The 3 background pictures chosen by the theme squares */
+body[data-theme="1"] { --main-bg: url("bg1.jpg"); }
+body[data-theme="2"] { --main-bg: url("bg2.jpg"); }
+body[data-theme="3"] { --main-bg: url("bg3.jpg"); }
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* The purple outline when you move with the keyboard Tab key */
+:focus-visible {
+  outline: 3px solid var(--accent-dark);
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================================
+   LAYOUT: CSS GRID (the 3 columns + the bottom bar)
+   Sidebar | Main | Info panel on top,
+   and the player bar across the whole bottom.
+   ========================================================== */
+.app {
+  height: 100%;
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "side main info"
+    "player player player";
+}
+
+.sidebar    { grid-area: side; }
+.main       { grid-area: main; }
+.info-panel { grid-area: info; }
+.player     { grid-area: player; }
+
+/* ==========================================================
+   1. LEFT SIDEBAR
+   Logo, Home/Search/Library, Create playlist
+   button and the playlist list on the left.
+   ========================================================== */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+/* The logo and "Mellowdy" name */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.logo {
+  display: block;
+  flex: none;
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.brand-name {
+  padding: 0.2em 0.1em;
+  font-family: "Dancing Script", cursive;
+  font-weight: 600;
+  font-size: 1.6rem;
+  background: linear-gradient(120deg, #8b5cf6, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Home / Search / Library links (slide right on hover) */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.nav-link:hover {
+  background: var(--card);
+  color: var(--text);
+  transform: translateX(3px);
+}
+
+.nav-link.active {
+  background: var(--card);
+  color: var(--accent-dark);
+}
+
+/* The purple "+ Create playlist" button */
+.new-playlist {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  transition: transform 0.2s;
+}
+
+.new-playlist:hover {
+  transform: scale(1.03);
+}
+
+.side-title {
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 0 12px;
+}
+
+/* Your playlist names with the small ✕ delete button
+   (also used by the playlist chips on tablet/phone) */
+.playlist-list,
+.chip-list {
+  list-style: none;
+}
+
+.playlist-list li,
+.chip-list li {
+  display: flex;
+  align-items: center;
+}
+
+.playlist-link {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.2s, color 0.2s;
+}
+
+.playlist-link:hover {
+  background: var(--card);
+  color: var(--text);
+}
+
+.playlist-link.active {
+  background: var(--card);
+  color: var(--accent-dark);
+}
+
+.pl-x {
+  flex: none;
+  padding: 4px 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+}
+
+.pl-x:hover {
+  background: #ffd6d6;
+  color: #b3261e;
+}
+
+/* ==========================================================
+   2. MAIN AREA (the middle column, scrolls on its own)
+   Background picture + banner + search + cards.
+   ========================================================== */
+.main {
+  overflow-y: auto;
+  padding: 28px;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(253, 246, 251, 0.65), rgba(253, 246, 251, 0.65)),
+    var(--main-bg);
+  background-size: cover;
+  background-position: center;
+}
+
+/* While a playlist page is open, hide the home content */
+.main.playlist-open > .hero,
+.main.playlist-open > .search-box,
+.main.playlist-open > .playlist-chips,
+.main.playlist-open > #library,
+.main.playlist-open > .no-results {
+  display: none;
+}
+
+/* The phone header is hidden on bigger screens */
+.mobile-header {
+  display: none;
+}
+
+/* The 3 theme picture squares at the top right
+   (scrolls away with the page, so it never overlaps the cards) */
+.theme-picker {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.theme-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background-size: cover;
+  background-position: center;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(74, 64, 99, 0.2);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.theme-btn.t1 { background-image: url("bg1.jpg"); }
+.theme-btn.t2 { background-image: url("bg2.jpg"); }
+.theme-btn.t3 { background-image: url("bg3.jpg"); }
+
+.theme-btn:hover {
+  transform: scale(1.1);
+}
+
+.theme-btn.active {
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+/* The "Mellowdy" script title at the top left
+   (tablet only; the clef is solid purple so it never gets cut) */
+.main-brand {
+  display: none;
+  margin-right: auto;
+  align-self: center;
+  padding: 0.2em 0.1em;
+  font-family: "Dancing Script", cursive;
+  font-weight: 600;
+  font-size: 2.2rem;
+  line-height: 1.2;
+  background: linear-gradient(120deg, #8b5cf6, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.main-brand span,
+.brand-name span,
+.mobile-title span {
+  color: #8b5cf6;
+  -webkit-text-fill-color: #8b5cf6;
+}
+
+/* The colorful greeting banner */
+.hero {
+  border-radius: 24px;
+  padding: 32px;
+  background: linear-gradient(120deg, #e5d4ff, #ffd6e6 60%, #ffe9d2);
+}
+
+.hero h1 {
+  font-family: "Dancing Script", cursive;
+  font-weight: 600;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+}
+
+.hero p {
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
+/* The rounded search bars (home page + add-songs page) */
+.search-box {
+  margin-top: 20px;
+}
+
+.search-box input,
+.pl-search {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font: inherit;
+  color: var(--text);
+  outline: none;
+}
+
+.search-box input:focus,
+.pl-search:focus {
+  border-color: var(--accent-dark);
+}
+
+.no-results {
+  margin-top: 20px;
+  color: var(--muted);
+}
+
+/* (Tablet/phone): playlist chips below the search bar.
+   Hidden on desktop because the sidebar already shows them. */
+.playlist-chips {
+  display: none;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-list li {
+  background: var(--card);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.chip-list .playlist-link {
+  padding: 8px 16px;
+}
+
+.chip-list .playlist-link.active {
+  background: var(--accent-dark);
+  color: #fff;
+}
+
+/* Section titles and the grid of cards */
+.section-title {
+  margin: 28px 0 14px;
+  font-size: 1.25rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+/* The Library section blinks purple once when you press Library */
+.flash {
+  animation: flash 1s ease-out;
+}
+
+@keyframes flash {
+  from { background: rgba(183, 148, 246, 0.35); }
+  to   { background: transparent; }
+}
+
+/* Each song/podcast card; grows a little on hover
+   (mouse only) and shows a round play button */
+.track-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  background: var(--card);
+  border-radius: 18px;
+  padding: 12px;
+  text-align: left;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+@media (hover: hover) {
+  .track-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 24px rgba(183, 148, 246, 0.3);
+  }
+}
+
+.track-card:active {
+  transform: scale(0.97);
+}
+
+.card-title,
+.card-artist {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-title {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.card-artist {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* the card of the song that is playing right now */
+.track-card.playing .card-title {
+  color: var(--accent-dark);
+}
+
+/* the round ▶ button that appears on a card */
+.play-btn {
+  position: absolute;
+  right: 18px;
+  bottom: 62px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.track-card.playing .play-btn {
+  opacity: 1;
+  transform: none;
+}
+
+@media (hover: hover) {
+  .track-card:hover .play-btn {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The square album picture (emoji first, picture
+   replaces it when the image file is found). Used on cards,
+   playlist rows, the player bar and the info panel. */
+.cover {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 2.6rem;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==========================================================
+   3. PLAYLIST PAGES
+   The playlist page (cover, name, "+ Add" button,
+   song rows) and the "Add to this playlist" page.
+   ========================================================== */
+.playlist-view,
+.add-view {
+  margin-top: 8px;
+}
+
+/* the ← back button */
+.pl-back {
+  font-size: 1.8rem;
+  color: var(--text);
+  padding: 4px 12px 4px 0;
+}
+
+/* playlist cover + name at the top */
+.pl-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.pl-cover {
+  width: 110px;
+  height: 110px;
+  flex: none;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  background: var(--line);
+}
+
+.pl-title {
+  font-size: 1.8rem;
+  word-break: break-word;
+}
+
+/* the big "+ Add to this playlist" button */
+.pl-add-main {
+  display: block;
+  margin: 24px auto;
+  padding: 12px 26px;
+  border-radius: 99px;
+  background: var(--accent-dark);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* top bar of the Add page: ← and the centered title */
+.add-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-top h2 {
+  flex: 1;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-right: 36px;
+}
+
+.pl-search {
+  margin: 16px 0;
+}
+
+/* the white song rows with the Add / Remove button */
+.pl-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pl-empty {
+  color: var(--muted);
+  text-align: center;
+}
+
+.pl-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border-radius: 14px;
+  padding: 8px 12px;
+}
+
+.pl-row .cover {
+  width: 44px;
+  font-size: 1.3rem;
+  flex: none;
+}
+
+.pl-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pl-info b,
+.pl-info small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pl-info small {
+  color: var(--muted);
+}
+
+.pl-btn {
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: var(--accent-dark);
+  color: #fff;
+  font-weight: 700;
+}
+
+.pl-btn.remove {
+  background: var(--line);
+  color: var(--text);
+}
+
+/* ==========================================================
+   8. CREATE-PLAYLIST POPUP
+   The white "Name your playlist" box over a
+   dark background.
+   ========================================================== */
+.dialog {
+  margin: auto;
+  border: 0;
+  border-radius: 20px;
+  padding: 24px;
+  width: min(90vw, 360px);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 20px 50px rgba(74, 64, 99, 0.35);
+}
+
+.dialog::backdrop {
+  background: rgba(74, 64, 99, 0.4);
+}
+
+.dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dialog label {
+  font-weight: 700;
+}
+
+.dialog input {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  font: inherit;
+  color: var(--text);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ==========================================================
+   4. RIGHT INFO PANEL (desktop only)
+   Big cover, title, artist, "Up next" on the right.
+   ========================================================== */
+.info-panel {
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.info-panel .side-title {
+  padding: 0;
+}
+
+.big-cover {
+  width: 100%;
+  font-size: 5rem;
+}
+
+.info-panel p {
+  color: var(--muted);
+}
+
+/* ==========================================================
+   5. BOTTOM PLAYER BAR
+   The bar at the bottom, split in 3 parts:
+   song info (left) | controls + timeline (middle) | volume (right)
+   ========================================================== */
+.player {
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  padding: 12px 20px;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-areas: "now center vol";
+  align-items: center;
+  gap: 16px;
+}
+
+/* LEFT: small cover + title + artist */
+.now {
+  grid-area: now;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.now .cover {
+  width: 52px;
+  font-size: 1.5rem;
+  flex: none;
+}
+
+.now-text {
+  min-width: 0;
+}
+
+.now-text b,
+.now-text small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now-text small {
+  color: var(--muted);
+}
+
+/* MIDDLE: control buttons (shuffle, prev, play, next, loop) */
+.center {
+  grid-area: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ctl {
+  font-size: 1.1rem;
+  padding: 6px;
+  color: var(--muted);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.ctl:hover {
+  color: var(--text);
+  transform: scale(1.12);
+}
+
+/* purple when shuffle or loop is turned on */
+.ctl.on {
+  color: var(--accent-dark);
+}
+
+/* the big round play/pause button */
+.main-play {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  color: #fff;
+}
+
+.main-play:hover {
+  color: #fff;
+}
+
+/* MIDDLE: timeline row (time passed | slider | time left).
+   JavaScript sets --fill to color the filled part. */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.bar span {
+  flex: none;
+  min-width: 38px;
+  text-align: center;
+}
+
+/* the sliders (timeline + volume) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  height: 6px;
+  border-radius: 99px;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--fill, 0%),
+    var(--line) var(--fill, 0%)
+  );
+}
+
+/* the round slider handle */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  border: 2px solid #fff;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  border: 2px solid #fff;
+}
+
+/* RIGHT: mute button + volume slider */
+.vol {
+  grid-area: vol;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.vol input {
+  max-width: 110px;
+}
+
+/* the phone navbar is hidden on bigger screens */
+.mobile-nav {
+  display: none;
+}
+
+/* ==========================================================
+   7. FULL-SCREEN NOW PLAYING VIEW
+   The pastel gradient screen that slides up with
+   the vinyl record (songs) or the radio (podcasts), the
+   controls and the lyrics.
+   ========================================================== */
+.np {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  overflow-y: auto;
+  color: var(--np-text);
+  padding:
+    calc(64px + env(safe-area-inset-top, 0px))
+    24px
+    calc(24px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(170deg, #e5d4ff, #ffd6e6 55%, #ffe9d2);
+  animation: npUp 0.35s ease-out;
+}
+
+/* podcasts: no lyrics box, controls stay centered */
+.np.is-podcast .lyrics {
+  display: none;
+}
+
+.np.is-podcast .controls {
+  margin-bottom: auto;
+}
+
+/* slide-up animation when it opens */
+@keyframes npUp {
+  from { transform: translateY(100%); }
+  to   { transform: none; }
+}
+
+/* the ⌄ close button (top left) */
+.np-close {
+  position: absolute;
+  left: 16px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  font-size: 2rem;
+  padding: 6px 12px;
+  color: var(--np-text);
+}
+
+/* the box that holds the record and the arm (or the radio) */
+.deck {
+  position: relative;
+  width: min(56vw, 240px);
+  aspect-ratio: 1;
+  margin: auto 0 10px;
+  flex: none;
+}
+
+/* (Laptop/desktop): a bigger spinning record.
+   Change 32vh (window height) or 380px (max size) to resize it. */
+@media (min-width: 1024px) {
+  .deck { width: min(32vh, 380px); }
+}
+
+
+/* the spinning record (spins only while a song plays) */
+.vinyl {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  background: repeating-radial-gradient(
+    circle,
+    #cdb8f5 0 6px,
+    #dcccf9 6px 12px
+  );
+  box-shadow: 0 16px 40px rgba(183, 148, 246, 0.45);
+  animation: spin 6s linear infinite;
+  animation-play-state: paused;
+}
+
+.vinyl.spinning {
+  animation-play-state: running;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* the round album picture in the middle of the record */
+.vinyl-label {
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  background: #ffd6e6;
+  overflow: hidden;
+}
+
+.vinyl-label img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* the small hole in the center */
+.vinyl-label::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fdf6fb;
+}
+
+/* the white arm that swings onto the record while playing */
+.tonearm {
+  position: absolute;
+  top: -4%;
+  right: -3%;
+  width: 10px;
+  height: 55%;
+  background: #fff;
+  border-radius: 99px;
+  transform-origin: 50% 6px;
+  transform: rotate(-22deg);
+  transition: transform 0.6s;
+  box-shadow: 0 4px 10px rgba(74, 64, 99, 0.2);
+}
+
+.tonearm.playing {
+  transform: rotate(10deg);
+}
+
+/* the purple round pivot of the arm */
+.tonearm::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -9px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid #fff;
+}
+
+/* ----------------------------------------------------------
+   RADIO (podcasts only)
+   A pink radio with the podcast's emoji on its
+   screen. It bobs, wiggles its antenna and floats music notes
+   only while the podcast plays.
+   ---------------------------------------------------------- */
+.radio {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+
+.np.is-podcast .radio {
+  display: block;
+}
+
+.np.is-podcast .vinyl,
+.np.is-podcast .tonearm {
+  display: none;
+}
+
+.radio-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72%;
+  background: #ffd6e6;
+  border: 6px solid #fff;
+  border-radius: 28px;
+  box-shadow: 0 16px 40px rgba(183, 148, 246, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.antenna {
+  position: absolute;
+  left: 62%;
+  bottom: 70%;
+  width: 6px;
+  height: 26%;
+  background: #fff;
+  border-radius: 99px;
+  transform-origin: 50% 100%;
+  transform: rotate(18deg);
+}
+
+.antenna::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.radio-face {
+  width: 72%;
+  height: 54%;
+  background: #fdf6fb;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-emoji {
+  font-size: 3.2rem;
+  line-height: 1;
+}
+
+.radio-knobs {
+  display: flex;
+  gap: 14px;
+}
+
+.knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid #fff;
+}
+
+.note {
+  position: absolute;
+  opacity: 0;
+  font-size: 1.4rem;
+  color: var(--accent-dark);
+}
+
+.n1 { left: 2%; top: 22%; }
+.n2 { right: 0; top: 34%; }
+
+/* animations run only while playing (.on is added by JavaScript) */
+.radio.on { animation: radioBob 1.2s ease-in-out infinite; }
+.radio.on .radio-emoji { animation: emojiPop 0.8s ease-in-out infinite; }
+.radio.on .antenna { animation: radioWiggle 1.2s ease-in-out infinite; }
+.radio.on .note { animation: radioFloat 2.4s ease-out infinite; }
+.radio.on .n2 { animation-delay: 1.2s; }
+
+@keyframes radioBob {
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes emojiPop {
+  50% { transform: scale(1.15) rotate(-6deg); }
+}
+
+@keyframes radioWiggle {
+  50% { transform: rotate(28deg); }
+}
+
+@keyframes radioFloat {
+  0%   { opacity: 0; transform: translateY(10px); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-34px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radio,
+  .radio * {
+    animation: none !important;
+  }
+}
+
+/* title, artist, timeline and buttons of the full-screen player */
+.np h2 {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.np p,
+.np .bar,
+.np .ctl {
+  color: var(--np-muted);
+}
+
+.np .bar {
+  max-width: 420px;
+}
+
+.np .ctl.on {
+  color: var(--accent-dark);
+}
+
+.np .main-play {
+  color: #fff;
+  width: 56px;
+  height: 56px;
+}
+
+/* The white lyrics box under the buttons */
+.lyrics {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: auto;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 20px;
+  padding: 14px 16px;
+}
+
+.ly-title {
+  font-size: 0.85rem;
+  color: var(--np-muted);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.ly-body {
+  position: relative;
+  min-height: 90px;
+  max-height: 28vh;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.np .ly-line {
+  padding: 5px 0;
+  font-size: 1rem;
+  color: var(--muted);
+  transition: color 0.3s, transform 0.3s;
+}
+
+/* the line being sung right now: darker, bold and slightly bigger */
+.np .ly-line.active {
+  color: var(--np-text);
+  font-weight: 700;
+  transform: scale(1.05);
+}
+
+.np .ly-empty {
+  color: var(--np-muted);
+}
+
+/* ==========================================================
+   COVER COLORS
+   The pastel color behind an emoji cover.
+   JavaScript sets data-color on each cover.
+   ========================================================== */
+[data-color="pink"]   { background: #ffd6e6; }
+[data-color="purple"] { background: #e5d4ff; }
+[data-color="peach"]  { background: #ffe3cc; }
+[data-color="mint"]   { background: #cdf2e3; }
+[data-color="blue"]   { background: #d6e6ff; }
+[data-color="yellow"] { background: #fff1bf; }
+
+/* ==========================================================
+   SOFT SNOW
+   The white snowflakes falling over the page.
+   ========================================================== */
+.snow {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================
+   TABLET (768px to 1023px)
+   The sidebar shrinks to icons, the right info
+   panel disappears, playlists become chips under the search bar.
+   ========================================================== */
+@media (max-width: 1023px) {
+  .app {
+    grid-template-columns: 72px 1fr;
+    grid-template-areas:
+      "side main"
+      "player player";
+  }
+
+  .info-panel,
+  .brand-name,
+  .label,
+  .side-title,
+  .playlist-list {
+    display: none;
+  }
+
+  .playlist-chips {
+    display: block;
+  }
+
+  /* the script title shows at the top left of the main area */
+  .main-brand {
+    display: block;
+  }
+
+  /* icon-only sidebar: everything 48px and centered */
+  .sidebar {
+    align-items: center;
+    padding: 16px 8px;
+  }
+
+  .logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .nav {
+    align-items: center;
+    width: 100%;
+  }
+
+  .sidebar .nav-link,
+  .new-playlist {
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+  }
+
+  .sidebar .nav-link:hover {
+    transform: none;
+  }
+
+  /* simpler player bar: no artist line, shorter volume slider */
+  .now-text small {
+    display: none;
+  }
+
+  .vol input {
+    max-width: 80px;
+  }
+}
+
+/* ==========================================================
+   MOBILE (below 768px)
+   No sidebar; a top header, a bottom navbar,
+   a two-row player bar and bigger touch buttons.
+   ========================================================== */
+@media (max-width: 767px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "main"
+      "player"
+      "nav";
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .main {
+    padding: 18px;
+  }
+
+  /* player bar in two rows: song + volume on top, controls below */
+  .player {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "now vol"
+      "center center";
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .now-text small {
+    display: block;
+  }
+
+  .vol input {
+    flex: none;
+    width: 90px;
+  }
+
+  /* touch-friendly buttons (at least 44px) */
+  .ctl {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  input[type="range"] {
+    height: 8px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* the top header with logo, title and theme squares */
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .mobile-logo {
+    display: block;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  .mobile-title {
+    padding: 0.2em 0.1em;
+    font-family: "Dancing Script", cursive;
+    font-weight: 600;
+    font-size: 1.8rem;
+    background: linear-gradient(120deg, #8b5cf6, #f472b6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* the desktop theme picker is hidden; the header one is used */
+  .main > .theme-picker {
+    display: none;
+  }
+
+  .header-themes {
+    margin: 0 0 0 auto;
+    gap: 8px;
+  }
+
+  .header-themes .theme-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border-width: 2px;
+  }
+
+  /* the bottom navbar: Home / Search / Library / Create */
+  .mobile-nav {
+    grid-area: nav;
+    display: flex;
+    justify-content: space-around;
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-nav .nav-link {
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 14px;
+    font-size: 0.7rem;
+  }
+
+  /* cards: 2 per row */
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pl-cover {
+    width: 84px;
+    height: 84px;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+   For people who turn off animations in their device settings:
+   no hover transitions, no spinning record, no snow.
+   ========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .vinyl,
+  .np,
+  .flash {
+    animation: none;
+  }
+
+  .snow {
+    display: none;
+  }
+}
+
+/* ==========================================================
+   LAPTOP + DESKTOP (1024px and wider)
+   The full-screen player gets bigger: larger
+   title, wider timeline and lyrics, bigger buttons and text.
+   Phones and tablets (below 1024px) are not affected.
+   To change which screens get this, edit the 1024px number.
+   ========================================================== */
+@media (min-width: 1024px) {
+
+  /* More space between items, and more room
+     at the top so the ⌄ close button doesn't touch the record */
+  .np { gap: 20px; padding-top: 72px; }
+
+  /* Bigger song title and artist name */
+  .np h2 { font-size: 2.2rem; }
+  .np p  { font-size: 1.2rem; }
+
+  /* Wider timeline slider and lyrics box
+     (raise 720px to make them wider, lower it to make them narrower) */
+  .np .bar,
+  .lyrics { max-width: 720px; }
+
+  /* Bigger time numbers (2:19 and -2:26) */
+  .np .bar { font-size: 0.95rem; }
+
+  /* Bigger shuffle, previous, next and loop buttons,
+     and a bigger round play/pause button */
+  .np .ctl { font-size: 1.6rem; }
+  .np .main-play { width: 76px; height: 76px; }
+
+  /* Bigger emoji in the middle of the record
+     (only shows when a song has no cover picture) */
+  .vinyl-label { font-size: 4.5rem; }
+
+  /* Bigger lyric lines with more space between them,
+     and a taller lyrics box before it starts scrolling */
+  .np .ly-line { font-size: 1.3rem; padding: 8px 0; }
+  .ly-body { max-height: 34vh; }
+}
+

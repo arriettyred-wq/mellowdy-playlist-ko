@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mellowdy: a pastel, Spotify-inspired music and podcast player.">
+  <title>Mellowdy</title>
+
+  <!-- Browser tab icon -->
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+
+  <!-- Fonts: Dancing Script (greeting + title) + Inter (everything else) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="Spotifystyle.css">
+  <script src="spotify.js" defer></script>
+  <script src="lyrics.js" defer></script>
+</head>
+
+<body data-theme="1">
+  <div class="app">
+
+    <!-- ==================================================
+         1. LEFT SIDEBAR
+         The purple column on the left with the
+         school logo, Home / Search / Library, the "Create
+         playlist" button and saved playlists.
+         (Tablet: icons only. Phone: hidden.)
+         ================================================== -->
+    <aside class="sidebar">
+
+      <!-- Logo + "Mellowdy" at the top -->
+      <div class="brand">
+        <img src="logo.jpg" alt="University of Cebu South logo" class="logo">
+        <span class="brand-name"><span aria-hidden="true">𝄞</span> Mellowdy</span>
+      </div>
+
+      <!-- Home, Search, Library links -->
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#" class="nav-link active" data-nav="home" aria-label="Home" aria-current="page">
+          <span class="icon" aria-hidden="true">🏠</span>
+          <span class="label">Home</span>
+        </a>
+        <a href="#" class="nav-link" data-nav="search" aria-label="Search">
+          <span class="icon" aria-hidden="true">🔍</span>
+          <span class="label">Search</span>
+        </a>
+        <a href="#" class="nav-link" data-nav="library" aria-label="Library">
+          <span class="icon" aria-hidden="true">📚</span>
+          <span class="label">Library</span>
+        </a>
+      </nav>
+
+      <!-- The purple "+ Create playlist" button -->
+      <button class="new-playlist js-new-playlist" aria-label="Create playlist">
+        <span aria-hidden="true">＋</span>
+        <span class="label">Create playlist</span>
+      </button>
+
+      <!-- The list of playlists you created (filled by JavaScript) -->
+      <h2 class="side-title">Your playlists</h2>
+      <ul class="playlist-list" id="playlistList"></ul>
+    </aside>
+
+
+    <!-- ==================================================
+         2. MAIN AREA (the middle part that scrolls)
+         ================================================== -->
+    <main class="main" id="main">
+
+      <!-- The title (tablet) and the 3 small picture
+           squares at the top right that change the background -->
+      <div class="theme-picker" role="group" aria-label="Choose a background theme">
+        <span class="main-brand"><span aria-hidden="true">𝄞</span> Mellowdy</span>
+        <button class="theme-btn t1 active" data-theme="1" aria-label="Theme 1"></button>
+        <button class="theme-btn t2" data-theme="2" aria-label="Theme 2"></button>
+        <button class="theme-btn t3" data-theme="3" aria-label="Theme 3"></button>
+      </div>
+
+      <!-- (Phone only): the top bar with logo, title
+           and the 3 theme squares -->
+      <header class="mobile-header">
+        <img src="logo.jpg" alt="University of Cebu South logo" class="mobile-logo">
+        <span class="mobile-title"><span aria-hidden="true">𝄞</span> Mellowdy</span>
+
+        <div class="theme-picker header-themes" role="group" aria-label="Choose a background theme">
+          <button class="theme-btn t1 active" data-theme="1" aria-label="Theme 1"></button>
+          <button class="theme-btn t2" data-theme="2" aria-label="Theme 2"></button>
+          <button class="theme-btn t3" data-theme="3" aria-label="Theme 3"></button>
+        </div>
+      </header>
+
+      <!-- The colorful banner with "Good morning ☀️" -->
+      <section class="hero">
+        <h1 id="greeting">Hello</h1>
+        <p>Start your day with your favorite melody♪.</p>
+      </section>
+
+      <!-- The rounded search bar under the banner -->
+      <div class="search-box" role="search">
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="Search tracks, podcasts or artists..."
+          aria-label="Search tracks, podcasts or artists"
+        >
+      </div>
+
+      <!-- (Tablet/phone): playlist buttons (chips) under the
+           search bar, because the sidebar list is hidden there -->
+      <section class="playlist-chips" aria-label="Your playlists">
+        <h2 class="section-title">Your playlists</h2>
+        <ul class="chip-list" id="playlistChips"></ul>
+      </section>
+
+      <!-- The 3 rows of song/podcast cards -->
+      <div id="library">
+        <section class="track-section">
+          <h2 class="section-title">Recently played</h2>
+          <div class="card-grid" id="recentGrid"></div>
+        </section>
+
+        <section class="track-section">
+          <h2 class="section-title">Top hits</h2>
+          <div class="card-grid" id="topGrid"></div>
+        </section>
+
+        <section class="track-section">
+          <h2 class="section-title">Featured podcasts</h2>
+          <div class="card-grid" id="podcastGrid"></div>
+        </section>
+      </div>
+
+      <!-- The "No results found." when the search matches nothing -->
+      <p class="no-results" id="noResults" hidden>No results found.</p>
+
+      <!-- ================================================
+           3. PLAYLIST PAGES (open inside the main area so the
+           player bar stays visible)
+           ================================================ -->
+
+      <!-- A playlist page: back arrow, cover, name,
+           "+ Add to this playlist" button and the songs inside -->
+      <section class="playlist-view" id="playlistView" hidden>
+        <button class="pl-back" id="plBack" aria-label="Back">←</button>
+
+        <div class="pl-head">
+          <div class="pl-cover" id="plCover" aria-hidden="true">🪷</div>
+          <h2 class="pl-title" id="plTitle">Playlist</h2>
+        </div>
+
+        <button class="pl-add-main" id="plAddBtn">＋ Add to this playlist</button>
+        <ul class="pl-list" id="plSongs"></ul>
+      </section>
+
+      <!-- The "Add to this playlist" page with its
+           own search bar and Add / Added ✓ buttons -->
+      <section class="add-view" id="addView" hidden>
+        <div class="add-top">
+          <button class="pl-back" id="addBack" aria-label="Back to playlist">←</button>
+          <h2>Add to this playlist</h2>
+        </div>
+
+        <input
+          type="search"
+          class="pl-search"
+          id="addSearch"
+          placeholder="What would you like to add?"
+          aria-label="Search songs to add"
+        >
+        <ul class="pl-list" id="plAdd"></ul>
+      </section>
+    </main>
+
+
+    <!-- ==================================================
+         4. RIGHT INFO PANEL (desktop only)
+         The third column on the right with the big
+         album cover, song title, artist and "Up next".
+         ================================================== -->
+    <aside class="info-panel" aria-label="Now playing">
+      <h2 class="side-title">Now playing</h2>
+      <div class="cover big-cover" id="infoCover">🎵</div>
+      <h3 id="infoTitle">Nothing playing</h3>
+      <p id="infoArtist">Pick a track</p>
+      <p class="up-next">Up next: <span id="infoNext">-</span></p>
+    </aside>
+
+
+    <!-- ==================================================
+         5. BOTTOM PLAYER BAR (always visible)
+         ================================================== -->
+    <footer class="player">
+
+      <!-- (Bottom left): small cover + song title + artist.
+           Click it to open the full-screen player. -->
+      <div class="now" id="nowBtn" role="button" tabindex="0" aria-label="Open full-screen player">
+        <div class="cover" id="pCover">🎵</div>
+        <div class="now-text">
+          <b id="pTitle">Nothing playing</b>
+          <small id="pArtist">Choose a track</small>
+        </div>
+      </div>
+
+      <div class="center">
+        <!-- (Bottom middle): shuffle, previous, play/pause, next, loop -->
+        <div class="controls">
+          <button class="ctl" id="shuffleBtn" aria-label="Shuffle">🔀</button>
+          <button class="ctl" id="prevBtn" aria-label="Previous">⏮</button>
+          <button class="ctl main-play" id="playBtn" aria-label="Play or pause">▶</button>
+          <button class="ctl" id="nextBtn" aria-label="Next">⏭</button>
+          <button class="ctl" id="loopBtn" aria-label="Loop">🔁</button>
+        </div>
+
+        <!-- The timeline slider with time passed / time left -->
+        <div class="bar">
+          <span id="timeNow">0:00</span>
+          <input type="range" id="seek" min="0" max="100" value="0" aria-label="Progress">
+          <span id="timeLeft">-0:00</span>
+        </div>
+      </div>
+
+      <!-- (Bottom right): speaker/mute button + volume slider -->
+      <div class="vol">
+        <button class="ctl" id="muteBtn" aria-label="Mute">🔊</button>
+        <input type="range" id="vol" min="0" max="100" value="70" aria-label="Volume">
+      </div>
+    </footer>
+
+
+    <!-- ==================================================
+         6. MOBILE BOTTOM NAVBAR (phone only)
+         Home / Search / Library / Create buttons at
+         the very bottom of a phone screen.
+         ================================================== -->
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="#" class="nav-link active" data-nav="home" aria-current="page">
+        <span class="icon" aria-hidden="true">🏠</span>Home
+      </a>
+      <a href="#" class="nav-link" data-nav="search">
+        <span class="icon" aria-hidden="true">🔍</span>Search
+      </a>
+      <a href="#" class="nav-link" data-nav="library">
+        <span class="icon" aria-hidden="true">📚</span>Library
+      </a>
+      <button class="nav-link js-new-playlist">
+        <span class="icon" aria-hidden="true">＋</span>Create
+      </button>
+    </nav>
+
+
+    <!-- ==================================================
+         7. FULL-SCREEN NOW PLAYING VIEW
+         The pink/purple screen that slides up.
+         Songs: a spinning record + lyrics.
+         Podcasts: a radio that moves while it plays.
+         (Opens when you tap a card, or click the song info in
+         the player bar.)
+         ================================================== -->
+    <section class="np" id="np" hidden aria-label="Now playing">
+
+      <!-- The ⌄ button at the top left to close -->
+      <button class="np-close" id="npClose" aria-label="Close">⌄</button>
+
+      <!-- The vinyl record + arm (songs)
+           or the radio (podcasts) -->
+      <div class="deck">
+        <div class="vinyl" id="vinyl">
+          <div class="vinyl-label" id="npCover">🎵</div>
+        </div>
+        <div class="tonearm" id="tonearm"></div>
+
+        <div class="radio" id="radio" aria-hidden="true">
+          <span class="antenna"></span>
+          <div class="radio-body">
+            <div class="radio-face">
+              <span class="radio-emoji" id="radioEmoji">🎙️</span>
+            </div>
+            <div class="radio-knobs">
+              <span class="knob"></span>
+              <span class="knob"></span>
+            </div>
+          </div>
+          <span class="note n1">♪</span>
+          <span class="note n2">♫</span>
+        </div>
+      </div>
+
+      <h2 id="npTitle">Nothing playing</h2>
+      <p id="npArtist">Pick a track</p>
+
+      <!-- Timeline slider -->
+      <div class="bar">
+        <span id="npTimeNow">0:00</span>
+        <input type="range" id="npSeek" min="0" max="100" value="0" aria-label="Progress">
+        <span id="npTimeLeft">-0:00</span>
+      </div>
+
+      <!-- The control buttons -->
+      <div class="controls">
+        <button class="ctl" id="npShuffle" aria-label="Shuffle">🔀</button>
+        <button class="ctl" id="npPrev" aria-label="Previous">⏮</button>
+        <button class="ctl main-play" id="npPlay" aria-label="Play or pause">▶</button>
+        <button class="ctl" id="npNext" aria-label="Next">⏭</button>
+        <button class="ctl" id="npLoop" aria-label="Loop">🔁</button>
+      </div>
+
+      <!-- WHAT YOU SEE: the white box with the lyrics; the current line
+           is highlighted and scrolls by itself (hidden on podcasts) -->
+      <div class="lyrics" id="lyrics">
+        <h3 class="ly-title">Lyrics</h3>
+        <div class="ly-body" id="lyricsBody"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ====================================================
+       8. CREATE-PLAYLIST POPUP
+       The small white box that asks "Name your
+       playlist" after you press Create.
+       ==================================================== -->
+  <dialog class="dialog" id="plDialog" aria-labelledby="plDialogLabel">
+    <form id="plForm">
+      <label for="plName" id="plDialogLabel">Name your playlist</label>
+      <input type="text" id="plName" maxlength="30" autocomplete="off" required>
+      <div class="dialog-actions">
+        <button type="button" class="pl-btn remove" id="plCancel">Cancel</button>
+        <button type="submit" class="pl-btn">Create</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+
+</html>
