@@ -1,6 +1,6 @@
 # Mellowdy: Playlist Ko!
 
-Spotify-inspired music and podcast player built for the Extension Project.
+A pastel-themed, spotify-inspired music and podcast player built for the Extension Project.
 
 ## Live demo
 https://arriettyred-wq.github.io/mellowdy-playlist-ko/
@@ -22,10 +22,6 @@ HTML, CSS (Grid and Flexbox) and JavaScript
 This project is for educational purposes only. All songs and
 podcasts belong to their respective owners and artists. No
 copyright infringement is intended.
-
-## Made by
-AshleyD.
-
 
 ## Made by
 AshleyD.
